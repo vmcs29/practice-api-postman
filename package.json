@@ -1,0 +1,27 @@
+{
+  "name": "qa-postman-workshop",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test-run-collection" : "npx newman run './collection/SquareUpPayments.postman_collection.json' -e './envVariables/QA.postman_environment.json' -d './testData/testData.json'",
+    "test-run-collection-report" : "npx newman run './collection/SquareUpPayments.postman_collection.json' -e './envVariables/QA.postman_environment.json' -d './testData/testData.json' -r htmlextra --reporter-htmlextra-export './reports'",
+    "test-run-collection-iterations" : "npx newman run './collection/SquareUpPayments.postman_collection.json' -e './envVariables/QA.postman_environment.json' -d 'testData/testDataMultipleObjs.json'",
+    "test-run-collection-iterations-report" : "npx newman run './collection/SquareUpPayments.postman_collection.json' -e './envVariables/QA.postman_environment.json' -d 'testData/testDataMultipleObjs.json' -r htmlextra --reporter-htmlextra-export './reports'"
+  },
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/victorcarrillo/qa-postman-workshop.git"
+  },
+  "bugs": {
+    "url": "https://github.com/victorcarrillo/qa-postman-workshop/issues"
+  },
+  "homepage": "https://github.com/victorcarrillo/qa-postman-workshop#readme",
+  "description": "",
+  "devDependencies": {
+    "newman": "^5.2.3",
+    "newman-reporter-htmlextra": "^1.21.0"
+  }
+}

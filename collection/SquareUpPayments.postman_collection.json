@@ -1,0 +1,1139 @@
+{
+	"info": {
+		"_postman_id": "70c32d2c-90b2-465a-b200-425225507442",
+		"name": "SquareUpPayments",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "UpdateCompletePayment",
+			"item": [
+				{
+					"name": "CreatePaymentCashValidation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"bodyData = JSON.parse(responseBody)",
+									"console.log(pm.environment.get(\"idempotency_key_1\"))",
+									"",
+									"pm.test(\"Validate Error Message from Response\", function () {",
+									"    responseErrorMessage = bodyData.errors[0].detail",
+									"    console.log(responseErrorMessage)",
+									"    errorMessageDocumentation = pm.environment.get(\"errorMessage\")",
+									"    console.log(errorMessageDocumentation)",
+									"    pm.expect(responseErrorMessage).to.eql(errorMessageDocumentation)",
+									"",
+									"});",
+									"",
+									"pm.test(\"Status code is 400\", function () {",
+									"    console.log(\"Test should throw a 400 for status\")",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Content has a BAD_REQUEST as response\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"BAD_REQUEST\");",
+									"});",
+									"",
+									"const schema = {",
+									"    \"type\": \"object\"",
+									"};",
+									"",
+									"pm.test(\"Validate schema\", () => {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 1200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1200);",
+									"});",
+									"",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount_money\": {\n      \"amount\": {{amountMoney}},\n      \"currency\": \"{{currency}}\"\n    },\n    \"idempotency_key\": \"{{idempotency_key_1}}\",\n    \"source_id\": \"CASH\",\n    \"accept_partial_authorization\": true,\n    \"autocomplete\": false\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-URL}}/v2/payments",
+							"host": [
+								"{{base-URL}}"
+							],
+							"path": [
+								"v2",
+								"payments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreatePayment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"bodyData = JSON.parse(responseBody)",
+									"",
+									"setPaymentId = bodyData.payment.id",
+									"console.log(setPaymentId)",
+									"pm.environment.set(\"PaymentId_1\", setPaymentId);",
+									"",
+									"",
+									"",
+									"pm.test(\"Comparing Values in request and response for Amount\", function () {",
+									"    responseAmount = bodyData.payment.amount_money.amount",
+									"    console.log(responseAmount)",
+									"    requestAmount = parseInt(pm.environment.get(\"amountMoney\"))",
+									"    console.log(requestAmount)",
+									"    pm.expect(responseAmount).to.eql(requestAmount)",
+									"",
+									"});",
+									"",
+									"",
+									"pm.test(\"Comparing Values in request and response for Currency\", function () {",
+									"    responseCurrency = bodyData.payment.amount_money.currency",
+									"    console.log(responseCurrency)",
+									"    requestCurrency = pm.environment.get(\"currency\")",
+									"    console.log(requestCurrency)",
+									"    pm.expect(responseCurrency).to.eql(requestCurrency)",
+									"",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    console.log(\"Test should throw a 200 for status\")",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Content has a APPROVED as response\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"APPROVED\");",
+									"});",
+									"",
+									"const schema = {",
+									"    \"type\": \"object\"",
+									"};",
+									"",
+									"pm.test(\"Validate schema\", () => {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 1200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount_money\": {\n      \"amount\": {{amountMoney}},\n      \"currency\": \"{{currency}}\"\n    },\n    \"idempotency_key\": \"{{idempotency_key_1}}\",\n    \"source_id\": \"cnon:card-nonce-ok\",\n    \"accept_partial_authorization\": false,\n    \"autocomplete\": false\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-URL}}/v2/payments",
+							"host": [
+								"{{base-URL}}"
+							],
+							"path": [
+								"v2",
+								"payments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetPayment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"bodyData = JSON.parse(responseBody)",
+									"",
+									"",
+									"pm.test(\"Comparing Payment Id \", function () {",
+									"    requestPaymentId = pm.environment.get(\"PaymentId_1\")",
+									"    console.log(requestPaymentId)",
+									"    responsePaymentId = bodyData.payment.id",
+									"    console.log(responsePaymentId)",
+									"    pm.expect(requestPaymentId).to.eql(responsePaymentId)",
+									"",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    console.log(\"Test should throw a 200 for status\")",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Content has a APPROVED as response\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"APPROVED\");",
+									"});",
+									"",
+									"const schema = {",
+									"    \"type\": \"object\"",
+									"};",
+									"",
+									"pm.test(\"Validate schema\", () => {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 1200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-URL}}/v2/payments/{{PaymentId_1}}",
+							"host": [
+								"{{base-URL}}"
+							],
+							"path": [
+								"v2",
+								"payments",
+								"{{PaymentId_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllPayments",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Content has a APPROVED as response\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"APPROVED\");",
+									"});",
+									"",
+									"const schema = {",
+									"    \"type\": \"object\"",
+									"};",
+									"",
+									"pm.test(\"Validate schema\", () => {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 1200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1200);",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    console.log(\"Test should throw a 200 for status\")",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-URL}}/v2/payments",
+							"host": [
+								"{{base-URL}}"
+							],
+							"path": [
+								"v2",
+								"payments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdatePayment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"bodyData = JSON.parse(responseBody)",
+									"",
+									"pm.test(\"Verify Total amount + tip money Update \", function () {",
+									"    tipMoney = parseInt(pm.environment.get(\"tipMoney\"))",
+									"    console.log(tipMoney)",
+									"",
+									"    initialAmount = parseInt(pm.environment.get(\"amountMoney\"))",
+									"    console.log(initialAmount)",
+									"",
+									"    totalAmount = tipMoney + initialAmount",
+									"    console.log(totalAmount)",
+									"",
+									"    responseTotalPayment = bodyData.payment.total_money.amount",
+									"    console.log(responseTotalPayment)",
+									"    ",
+									"    pm.expect(totalAmount).to.eql(responseTotalPayment)",
+									"",
+									"});pm.test(\"Status code is 200\", function () {",
+									"    console.log(\"Test should throw a 200 for status\")",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Content has a APPROVED as response\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"APPROVED\");",
+									"});",
+									"",
+									"const schema = {",
+									"    \"type\": \"object\"",
+									"};",
+									"",
+									"pm.test(\"Validate schema\", () => {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 1200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"idempotency_key\": \"0246d19c-f94a-4741-a6e2-937785ca4451\",\n\"payment\": {\n      \"tip_money\": {\n        \"amount\": {{tipMoney}},\n        \"currency\": \"USD\"\n      }\n\n}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-URL}}/v2/payments/{{PaymentId_1}}",
+							"host": [
+								"{{base-URL}}"
+							],
+							"path": [
+								"v2",
+								"payments",
+								"{{PaymentId_1}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CompletePayment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    console.log(\"Test should throw a 200 for status\")",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Content has a COMPLETED as response\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"COMPLETED\");",
+									"});",
+									"",
+									"const schema = {",
+									"    \"type\": \"object\"",
+									"};",
+									"",
+									"pm.test(\"Validate schema\", () => {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 1200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base-URL}}/v2/payments/{{PaymentId_1}}/complete",
+							"host": [
+								"{{base-URL}}"
+							],
+							"path": [
+								"v2",
+								"payments",
+								"{{PaymentId_1}}",
+								"complete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RefundPaymentInvalid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"bodyData = JSON.parse(responseBody)",
+									"",
+									"pm.test(\"Validate Error Message from Response\", function () {",
+									"    ",
+									"    responseErrorMessage = bodyData.errors[0].code",
+									"    console.log(responseErrorMessage)",
+									"",
+									"    errorMessageDocumentation = pm.environment.get(\"errorAmountTooHigh\")",
+									"    console.log(errorMessageDocumentation)",
+									"",
+									"    pm.expect(responseErrorMessage).to.eql(errorMessageDocumentation)",
+									"",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    console.log(\"Test should throw a 400 for status\")",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"",
+									"",
+									"const schema = {",
+									"    \"type\": \"object\"",
+									"};",
+									"",
+									"pm.test(\"Validate schema\", () => {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 1200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idempotency_key\": \"ff8959a4-b6cc-4995-baee-97cd9fe41ab8\",\n    \"amount_money\": {\n      \"amount\": {{invalidRefundAmount}},\n      \"currency\": \"{{currency}}\"\n    },\n    \"payment_id\": \"{{PaymentId_1}}\"\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-URL}}/v2/refunds",
+							"host": [
+								"{{base-URL}}"
+							],
+							"path": [
+								"v2",
+								"refunds"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CreateCancelPayment",
+			"item": [
+				{
+					"name": "CreatePayment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"bodyData = JSON.parse(responseBody)",
+									"console.log(pm.environment.get(\"idempotency_key_2\"))",
+									"",
+									"setPaymentId = bodyData.payment.id",
+									"console.log(setPaymentId)",
+									"pm.environment.set(\"PaymentId_2\", setPaymentId);",
+									"",
+									"",
+									"",
+									"pm.test(\"Comparing Values in request and response for Amount\", function () {",
+									"    responseAmount = bodyData.payment.amount_money.amount",
+									"    console.log(responseAmount)",
+									"    requestAmount = parseInt(pm.environment.get(\"amountMoney\"))",
+									"    console.log(requestAmount)",
+									"    pm.expect(responseAmount).to.eql(requestAmount)",
+									"",
+									"});",
+									"",
+									"",
+									"pm.test(\"Comparing Values in request and response for Currency\", function () {",
+									"    responseCurrency = bodyData.payment.amount_money.currency",
+									"    console.log(responseCurrency)",
+									"    requestCurrency = pm.environment.get(\"currency\")",
+									"    console.log(requestCurrency)",
+									"    pm.expect(responseCurrency).to.eql(requestCurrency)",
+									"",
+									"});",
+									"",
+									"const schema = {",
+									"    \"type\": \"object\"",
+									"};",
+									"",
+									"pm.test(\"Validate schema\", () => {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 1200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1200);",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    console.log(\"Test should throw a 200 for status\")",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount_money\": {\n      \"amount\": {{amountMoney}},\n      \"currency\": \"{{currency}}\"\n    },\n    \"idempotency_key\": \"{{idempotency_key_2}}\",\n    \"source_id\": \"cnon:card-nonce-ok\",\n    \"accept_partial_authorization\": false,\n    \"autocomplete\": false\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-URL}}/v2/payments",
+							"host": [
+								"{{base-URL}}"
+							],
+							"path": [
+								"v2",
+								"payments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetPayment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"bodyData = JSON.parse(responseBody)",
+									"",
+									"",
+									"pm.test(\"Comparing Payment Id \", function () {",
+									"    requestPaymentId = pm.environment.get(\"PaymentId_2\")",
+									"    console.log(requestPaymentId)",
+									"    responsePaymentId = bodyData.payment.id",
+									"    console.log(responsePaymentId)",
+									"    pm.expect(requestPaymentId).to.eql(responsePaymentId)",
+									"",
+									"});",
+									"",
+									"const schema = {",
+									"    \"type\": \"object\"",
+									"};",
+									"",
+									"pm.test(\"Validate schema\", () => {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 1200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1200);",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    console.log(\"Test should throw a 200 for status\")",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-URL}}/v2/payments/{{PaymentId_2}}",
+							"host": [
+								"{{base-URL}}"
+							],
+							"path": [
+								"v2",
+								"payments",
+								"{{PaymentId_2}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdatePayment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"bodyData = JSON.parse(responseBody)",
+									"",
+									"pm.test(\"Verify Total amount + tip money Update \", function () {",
+									"    tipMoney = parseInt(pm.environment.get(\"tipMoney\"))",
+									"    console.log(tipMoney)",
+									"",
+									"    initialAmount = parseInt(pm.environment.get(\"amountMoney\"))",
+									"    console.log(initialAmount)",
+									"",
+									"    totalAmount = tipMoney + initialAmount",
+									"    console.log(totalAmount)",
+									"",
+									"    responseTotalPayment = bodyData.payment.total_money.amount",
+									"    console.log(responseTotalPayment)",
+									"    ",
+									"    pm.expect(totalAmount).to.eql(responseTotalPayment)",
+									"",
+									"});",
+									"",
+									"const schema = {",
+									"    \"type\": \"object\"",
+									"};",
+									"",
+									"pm.test(\"Validate schema\", () => {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 1200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1200);",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    console.log(\"Test should throw a 200 for status\")",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"idempotency_key\": \"0246d19c-f94a-4741-a6e2-937785ca4451\",\n\"payment\": {\n      \"tip_money\": {\n        \"amount\": {{tipMoney}},\n        \"currency\": \"USD\"\n      }\n\n}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-URL}}/v2/payments/{{PaymentId_2}}",
+							"host": [
+								"{{base-URL}}"
+							],
+							"path": [
+								"v2",
+								"payments",
+								"{{PaymentId_2}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CancelPayment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const schema = {",
+									"    \"type\": \"object\"",
+									"};",
+									"",
+									"pm.test(\"Validate schema\", () => {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 1200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1200);",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    console.log(\"Test should throw a 200 for status\")",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base-URL}}/v2/payments/{{PaymentId_2}}/cancel",
+							"host": [
+								"{{base-URL}}"
+							],
+							"path": [
+								"v2",
+								"payments",
+								"{{PaymentId_2}}",
+								"cancel"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CancelPaymentNoId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"bodyData = JSON.parse(responseBody)",
+									"",
+									"",
+									"pm.test(\"Validate Error Message Canceling Payment with no Id\", function () {",
+									"    responseErrorMessage = bodyData.errors[0].detail",
+									"    console.log(responseErrorMessage)",
+									"",
+									"    errorMessageDocumentation = pm.environment.get(\"errorMessageNoId\") + pm.environment.get(\"InvalidPaymentId\")",
+									"    console.log(errorMessageDocumentation)",
+									"    ",
+									"    pm.expect(responseErrorMessage).to.eql(errorMessageDocumentation)",
+									"",
+									"});",
+									"",
+									"const schema = {",
+									"    \"type\": \"object\"",
+									"};",
+									"",
+									"pm.test(\"Validate schema\", () => {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 1200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1200);",
+									"});",
+									"",
+									"pm.test(\"Validate status code is 404\", function () {",
+									"    console.log(\"Test should throw a 404 for status\")",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base-URL}}/v2/payments/{{InvalidPaymentId}}/cancel",
+							"host": [
+								"{{base-URL}}"
+							],
+							"path": [
+								"v2",
+								"payments",
+								"{{InvalidPaymentId}}",
+								"cancel"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "RefundPayment",
+			"item": [
+				{
+					"name": "CreatePayment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"bodyData = JSON.parse(responseBody)",
+									"",
+									"setPaymentId = bodyData.payment.id",
+									"console.log(setPaymentId)",
+									"pm.environment.set(\"PaymentId_3\", setPaymentId);",
+									"",
+									"",
+									"pm.test(\"Comparing Values in request and response for Amount\", function () {",
+									"    responseAmount = bodyData.payment.amount_money.amount",
+									"    console.log(responseAmount)",
+									"    requestAmount = parseInt(pm.environment.get(\"amountMoney\"))",
+									"    console.log(requestAmount)",
+									"    pm.expect(responseAmount).to.eql(requestAmount)",
+									"",
+									"});",
+									"",
+									"",
+									"pm.test(\"Comparing Values in request and response for Currency\", function () {",
+									"    responseCurrency = bodyData.payment.amount_money.currency",
+									"    console.log(responseCurrency)",
+									"    requestCurrency = pm.environment.get(\"currency\")",
+									"    console.log(requestCurrency)",
+									"    pm.expect(responseCurrency).to.eql(requestCurrency)",
+									"",
+									"});",
+									"",
+									"const schema = {",
+									"    \"type\": \"object\"",
+									"};",
+									"",
+									"pm.test(\"Validate schema\", () => {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 1200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1200);",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    console.log(\"Test should throw a 200 for status\")",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount_money\": {\n      \"amount\": {{amountMoney}},\n      \"currency\": \"USD\"\n    },\n    \"idempotency_key\": \"{{idempotency_key_3}}\",\n    \"source_id\": \"cnon:card-nonce-ok\",\n    \"accept_partial_authorization\": false,\n    \"autocomplete\": true\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-URL}}/v2/payments",
+							"host": [
+								"{{base-URL}}"
+							],
+							"path": [
+								"v2",
+								"payments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetPayment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"bodyData = JSON.parse(responseBody)",
+									"",
+									"",
+									"pm.test(\"Comparing Payment Id \", function () {",
+									"    requestPaymentId = pm.environment.get(\"PaymentId_3\")",
+									"    console.log(requestPaymentId)",
+									"    responsePaymentId = bodyData.payment.id",
+									"    console.log(responsePaymentId)",
+									"    pm.expect(requestPaymentId).to.eql(responsePaymentId)",
+									"",
+									"});",
+									"",
+									"const schema = {",
+									"    \"type\": \"object\"",
+									"};",
+									"",
+									"pm.test(\"Validate schema\", () => {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 1200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1200);",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    console.log(\"Test should throw a 200 for status\")",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-URL}}/v2/payments/{{PaymentId_3}}",
+							"host": [
+								"{{base-URL}}"
+							],
+							"path": [
+								"v2",
+								"payments",
+								"{{PaymentId_3}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RefundPayment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const moment = require(\"moment\")",
+									"let isToday   = moment().utc().format(\"YYYY-MM-DD\")",
+									"console.log(isToday)",
+									"",
+									"bodyData = JSON.parse(responseBody)",
+									"setRefundDate = bodyData.refund.created_at",
+									"console.log(setRefundDate)",
+									"",
+									"pm.test(\"Comparing Dates from response and when refund was made\", function () {",
+									"    ",
+									"    pm.expect(setRefundDate.substring(0,10)).contains(isToday)",
+									"",
+									"});",
+									"",
+									"const schema = {",
+									"    \"type\": \"object\"",
+									"};",
+									"",
+									"pm.test(\"Validate schema\", () => {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 1200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1200);",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    console.log(\"Test should throw a 200 for status\")",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idempotency_key\": \"ff8959a4-b6cc-4995-baee-97cd9fe41ab8\",\n    \"amount_money\": {\n      \"amount\": {{refundPayment}},\n      \"currency\": \"USD\"\n    },\n    \"payment_id\": \"{{PaymentId_3}}\"\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-URL}}/v2/refunds",
+							"host": [
+								"{{base-URL}}"
+							],
+							"path": [
+								"v2",
+								"refunds"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetPaymentRefund",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const schema = {",
+									"    \"type\": \"object\"",
+									"};",
+									"",
+									"pm.test(\"Validate schema\", () => {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 1200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1200);",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    console.log(\"Test should throw a 200 for status\")",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-URL}}/v2/refunds/{{RefundId}}",
+							"host": [
+								"{{base-URL}}"
+							],
+							"path": [
+								"v2",
+								"refunds",
+								"{{RefundId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllPaymentRefunds",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const schema = {",
+									"    \"type\": \"object\"",
+									"};",
+									"",
+									"pm.test(\"Validate schema\", () => {",
+									"    pm.response.to.have.jsonSchema(schema);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 1200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1200);",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    console.log(\"Test should throw a 200 for status\")",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base-URL}}/v2/refunds",
+							"host": [
+								"{{base-URL}}"
+							],
+							"path": [
+								"v2",
+								"refunds"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{BearerToken}}",
+				"type": "string"
+			},
+			{
+				"key": "password",
+				"value": "{{BearerToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "0d061489-40ff-4a44-8766-2e3547799428",
+			"key": "baseURL",
+			"value": "https://connect.squareup.com"
+		}
+	]
+}
